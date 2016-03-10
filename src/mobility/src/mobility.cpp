@@ -50,6 +50,7 @@ geometry_msgs::Twist velocity;
 char host[128];
 string publishedName;
 char prev_state_machine[128];
+bool returnTripCompleted;
 
 //Publishers
 ros::Publisher velocityPublish;
@@ -159,7 +160,7 @@ void mobilityStateMachine(const ros::TimerEvent&) {
 				//If returning with a target
 				else if (targetDetected.data != -1) {
 					//If goal has not yet been reached
-					if (hypot(0.0 - currentLocation.x, 0.0 - currentLocation.y) > 0.5) {
+					if ((hypot(0.0 - currentLocation.x, 0.0 - currentLocation.y) > 0.5) && !returnTripCompleted) {
 				        //set angle to center as goal heading
 						goalLocation.theta = M_PI + atan2(currentLocation.y, currentLocation.x);
 						
@@ -169,7 +170,7 @@ void mobilityStateMachine(const ros::TimerEvent&) {
 					}
 					//Otherwise, select new random uniform heading
 					else {
-						//targetDetected.data = -1;
+						returnTripCompleted = true;
 						goalLocation.theta = rng->uniformReal(0, 2 * M_PI);
 						
 						//select new position 50 cm from current location
@@ -268,6 +269,7 @@ void targetHandler(const shared_messages::TagsImage::ConstPtr& message) {
 			//publish to scoring code
 			targetDropOffPublish.publish(message->image);
 			targetDetected.data = -1;
+			returnTripCompleted = false;
 	    }
 	}
 
