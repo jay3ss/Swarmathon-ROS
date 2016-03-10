@@ -167,10 +167,14 @@ void mobilityStateMachine(const ros::TimerEvent&) {
 						goalLocation.x = 0.0;
 						goalLocation.y = 0.0;
 					}
-					//Otherwise, reset target and select new random uniform heading
+					//Otherwise, select new random uniform heading
 					else {
-						targetDetected.data = -1;
+						//targetDetected.data = -1;
 						goalLocation.theta = rng->uniformReal(0, 2 * M_PI);
+						
+						//select new position 50 cm from current location
+						goalLocation.x = currentLocation.x + (0.5 * cos(goalLocation.theta));
+						goalLocation.y = currentLocation.y + (0.5 * sin(goalLocation.theta));
 					}
 				}
 				//Otherwise, assign a new goal
