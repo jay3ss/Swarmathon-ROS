@@ -150,17 +150,17 @@ void mobilityStateMachine(const ros::TimerEvent&) {
 			case STATE_MACHINE_TRANSFORM: {
 				stateMachineMsg.data = "TRANSFORMING";
 				//If angle between current and goal is significant
-				if (fabs(angles::shortest_angular_distance(currentLocation.theta, goalLocation.theta)) > 0.1) {
+				if (!returnTripCompleted && fabs(angles::shortest_angular_distance(currentLocation.theta, goalLocation.theta)) > 0.1) {
 					stateMachineState = STATE_MACHINE_ROTATE; //rotate
 				}
 				//If goal has not yet been reached
-				else if (fabs(angles::shortest_angular_distance(currentLocation.theta, atan2(goalLocation.y - currentLocation.y, goalLocation.x - currentLocation.x))) < M_PI_2) {
+				else if (!returnTripCompleted && fabs(angles::shortest_angular_distance(currentLocation.theta, atan2(goalLocation.y - currentLocation.y, goalLocation.x - currentLocation.x))) < M_PI_2) {
 					stateMachineState = STATE_MACHINE_TRANSLATE; //translate
 				}
 				//If returning with a target
 				else if (targetDetected.data != -1) {
 					//If goal has not yet been reached
-					if ((hypot(0.0 - currentLocation.x, 0.0 - currentLocation.y) > 0.5) && !returnTripCompleted) {
+					if (!returnTripCompleted && (hypot(0.0 - currentLocation.x, 0.0 - currentLocation.y) > 0.5)) {
 				        //set angle to center as goal heading
 						goalLocation.theta = M_PI + atan2(currentLocation.y, currentLocation.x);
 						
@@ -168,14 +168,10 @@ void mobilityStateMachine(const ros::TimerEvent&) {
 						goalLocation.x = 0.0;
 						goalLocation.y = 0.0;
 					}
-					//Otherwise, select new random uniform heading
+					//Otherwise, update status and execute spiral until collection zone is detected
 					else {
 						returnTripCompleted = true;
-						goalLocation.theta = rng->uniformReal(0, 2 * M_PI);
-						
-						//select new position 50 cm from current location
-						goalLocation.x = currentLocation.x + (0.5 * cos(goalLocation.theta));
-						goalLocation.y = currentLocation.y + (0.5 * sin(goalLocation.theta));
+						setVelocity(0.3, 0.05);
 					}
 				}
 				//Otherwise, assign a new goal

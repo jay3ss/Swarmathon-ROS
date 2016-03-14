@@ -39,6 +39,8 @@ vector<string> dataSet;
 float linearSpeed = 0.;
 float turnSpeed = 0.;
 const float deltaTime = 0.1;
+float wheelBaseHalf = .139; //half of the distance between the front left and ear right wheels (in meters)
+float wheelRadius = .061; //radius of wheel (in meters)
 
 //Publishers
 ros::Publisher imuPublish;
@@ -103,7 +105,7 @@ void cmdHandler(const geometry_msgs::Twist::ConstPtr& message) {
     turnSpeed = (message->angular.z) / 8;
     
     if (linearSpeed != 0.) {
-        sprintf(moveCmd, "m,%d\n", (int) (linearSpeed * 255));
+        sprintf(moveCmd, "m,%d,%d\n", (int) ((linearSpeed - ((wheelBaseHalf * turnSpeed) / wheelRadius)) * 255), (int) ((linearSpeed + ((wheelBaseHalf * turnSpeed) / wheelRadius)) * 255));
         usb.sendData(moveCmd);
     } else if (turnSpeed != 0.) {
         sprintf(moveCmd, "t,%d\n", (int) (turnSpeed * 255));
