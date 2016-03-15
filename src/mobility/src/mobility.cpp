@@ -50,7 +50,7 @@ geometry_msgs::Twist velocity;
 char host[128];
 string publishedName;
 char prev_state_machine[128];
-bool returnTripCompleted;
+int ticksSinceReturn;
 
 //Publishers
 ros::Publisher velocityPublish;
@@ -150,17 +150,17 @@ void mobilityStateMachine(const ros::TimerEvent&) {
 			case STATE_MACHINE_TRANSFORM: {
 				stateMachineMsg.data = "TRANSFORMING";
 				//If angle between current and goal is significant
-				if (!returnTripCompleted && fabs(angles::shortest_angular_distance(currentLocation.theta, goalLocation.theta)) > 0.1) {
+				if ((ticksSinceReturn == 0) && fabs(angles::shortest_angular_distance(currentLocation.theta, goalLocation.theta)) > 0.1) {
 					stateMachineState = STATE_MACHINE_ROTATE; //rotate
 				}
 				//If goal has not yet been reached
-				else if (!returnTripCompleted && fabs(angles::shortest_angular_distance(currentLocation.theta, atan2(goalLocation.y - currentLocation.y, goalLocation.x - currentLocation.x))) < M_PI_2) {
+				else if ((ticksSinceReturn == 0) && fabs(angles::shortest_angular_distance(currentLocation.theta, atan2(goalLocation.y - currentLocation.y, goalLocation.x - currentLocation.x))) < M_PI_2) {
 					stateMachineState = STATE_MACHINE_TRANSLATE; //translate
 				}
 				//If returning with a target
 				else if (targetDetected.data != -1) {
 					//If goal has not yet been reached
-					if (!returnTripCompleted && (hypot(0.0 - currentLocation.x, 0.0 - currentLocation.y) > 0.5)) {
+					if ((ticksSinceReturn == 0) && (hypot(0.0 - currentLocation.x, 0.0 - currentLocation.y) > 0.5)) {
 				        //set angle to center as goal heading
 						goalLocation.theta = M_PI + atan2(currentLocation.y, currentLocation.x);
 						
@@ -170,8 +170,7 @@ void mobilityStateMachine(const ros::TimerEvent&) {
 					}
 					//Otherwise, update status and execute spiral until collection zone is detected
 					else {
-						returnTripCompleted = true;
-						setVelocity(0.3, 0.05);
+						setVelocity(0.3, 0.7 / ((ticksSinceReturn++/100.0) + 1.0));
 					}
 				}
 				//Otherwise, assign a new goal
@@ -265,7 +264,7 @@ void targetHandler(const shared_messages::TagsImage::ConstPtr& message) {
 			//publish to scoring code
 			targetDropOffPublish.publish(message->image);
 			targetDetected.data = -1;
-			returnTripCompleted = false;
+			ticksSinceReturn = 0;
 	    }
 	}
 
