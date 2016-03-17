@@ -170,7 +170,8 @@ void mobilityStateMachine(const ros::TimerEvent&) {
 					}
 					//Otherwise, update status and execute spiral until collection zone is detected
 					else {
-						setVelocity(0.3, 0.7 / ((ticksSinceReturn++/100.0) + 1.0));
+						setVelocity(0.2, 0.0875 / ((ticksSinceReturn++/500.0) + 1.0));
+						break;
 					}
 				}
 				//Otherwise, assign a new goal
