@@ -91,7 +91,7 @@ int main(int argc, char **argv) {
 
     mh.timers->publish_status_timer = mNH.createTimer(ros::Duration(5), &MobilityHelper::publishStatusTimerEventHandler, &mh);
     mh.timers->killSwitchTimer = mNH.createTimer(ros::Duration(10), &MobilityHelper::killSwitchTimerEventHandler, &mh);
-    mh.timers->stateMachineTimer = mNH.createTimer(ros::Duration(0.1), &MobilityHelper::search, &mh);
+    mh.timers->stateMachineTimer = mNH.createTimer(ros::Duration(0.1), &RandomSearch::searchss, &mh);
     
     ros::spin();
     
