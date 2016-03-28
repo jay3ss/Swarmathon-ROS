@@ -51,7 +51,8 @@ int main(int argc, char** argv) {
 
 void sonarHandler(const sensor_msgs::Range::ConstPtr& sonarLeft, const sensor_msgs::Range::ConstPtr& sonarCenter, const sensor_msgs::Range::ConstPtr& sonarRight) {
 	std_msgs::UInt8 obstacleMode;
-	
+	// @josh 3/28/2016
+	// Can we use sonarCenter to determine if the obstacle is directly in front of us? 
 	if ((sonarLeft->range > collisionDistance) && (sonarCenter->range > collisionDistance) && (sonarRight->range > collisionDistance)) {
 		obstacleMode.data = 0; //no collision
 	}
