@@ -300,6 +300,9 @@ void modeHandler(const std_msgs::UInt8::ConstPtr& message) {
 }
 
 void obstacleHandler(const std_msgs::UInt8::ConstPtr& message) {
+	// TODO we need to somehow use this in the modularized version 
+	// either by publishing or by having as member attribute
+	geometry_msgs::Pose2D previousLocation = goalLocation;
 	if (message->data > 0) {
 		//obstacle on right side
 		if (message->data == 1) {
