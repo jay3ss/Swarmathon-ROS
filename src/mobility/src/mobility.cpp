@@ -58,6 +58,8 @@ ros::Publisher status_publisher;
 ros::Publisher targetCollectedPublish;
 ros::Publisher targetPickUpPublish;
 ros::Publisher targetDropOffPublish;
+// Previous goal location publisher for obstacle detection
+ros::Publisher prevGoalLocationPublish;
 
 //Subscribers
 ros::Subscriber joySubscriber;
@@ -66,6 +68,8 @@ ros::Subscriber targetSubscriber;
 ros::Subscriber obstacleSubscriber;
 ros::Subscriber odometrySubscriber;
 ros::Subscriber targetsCollectedSubscriber;
+// Previous goal location subscriber for obstacle detection
+ros::Subscriber prevGoalLocationSubscriber;
 
 //Timers
 ros::Timer stateMachineTimer;
@@ -120,6 +124,8 @@ int main(int argc, char **argv) {
     obstacleSubscriber = mNH.subscribe((publishedName + "/obstacle"), 10, obstacleHandler);
     odometrySubscriber = mNH.subscribe((publishedName + "/odom/ekf"), 10, odometryHandler);
     targetsCollectedSubscriber = mNH.subscribe(("targetsCollected"), 10, targetsCollectedHandler);
+    // TODO figure out how to implement the handler for the previous goalLocation
+    // prevGoalLocationSubscriber = mNH.subscribe((publishedName + "/prevGoalLocation"), 10, handlerName);
 
     status_publisher = mNH.advertise<std_msgs::String>((publishedName + "/status"), 1, true);
     velocityPublish = mNH.advertise<geometry_msgs::Twist>((publishedName + "/velocity"), 10);
@@ -127,6 +133,8 @@ int main(int argc, char **argv) {
     targetCollectedPublish = mNH.advertise<std_msgs::Int16>(("targetsCollected"), 1, true);
     targetPickUpPublish = mNH.advertise<sensor_msgs::Image>((publishedName + "/targetPickUpImage"), 1, true);
     targetDropOffPublish = mNH.advertise<sensor_msgs::Image>((publishedName + "/targetDropOffImage"), 1, true);
+    // Previous goal location publisher for obstacle detection
+    prevGoalLocationPublish = mNH.advertise<geometry_msgs::Pose2D>((publishedName + "/prevGoalLocation"), 1, true);
 
     publish_status_timer = mNH.createTimer(ros::Duration(status_publish_interval), publishStatusTimerEventHandler);
     killSwitchTimer = mNH.createTimer(ros::Duration(killSwitchTimeout), killSwitchTimerEventHandler);
